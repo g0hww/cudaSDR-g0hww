@@ -27,10 +27,13 @@
 #define LOG_DATAIO
 
 #include "cusdr_dataIO.h"
+#include "soundout.h"
 
 #if defined(Q_OS_WIN32)
 #include <winsock2.h>
 #endif
+#include <iostream>
+using namespace std;
 
 
 DataIO::DataIO(THPSDRParameter *ioData)
@@ -94,6 +97,11 @@ DataIO::DataIO(THPSDRParameter *ioData)
 		SLOT(setSocketBufferSize(QObject*, int)));
 
 	m_message = "m_sendSequence = %1, bytes sent: %2";
+
+	m_pSoundCardOut = new CSoundOut(this);
+	//RRK pass -1 to get the systems "default" audio device
+	m_pSoundCardOut->Start(-1, true, 48000, false);
+	m_pSoundCardOut->SetVolume(80);
 }
 
 DataIO::~DataIO() {
@@ -110,6 +118,11 @@ void DataIO::stop() {
 	io->networkIOMutex.lock();
 		m_stopped = true;
 	io->networkIOMutex.unlock();
+
+	if(m_pSoundCardOut) {
+		m_pSoundCardOut->Stop();
+		delete m_pSoundCardOut;
+	}
 }
 
 void DataIO::initDataReceiverSocket() {
@@ -233,6 +246,7 @@ void DataIO::readDeviceData() {
 					if (m_sequence != m_oldSequence + 1) {
 
 						//DATAIO_DEBUG << "readData missed " << m_sequence - m_oldSequence << " packages.";
+						//RRK cout << "readData missed " << m_sequence - m_oldSequence << " packages." << endl;
 
 						if (m_packetLossTime.elapsed() > 100) {
 							
@@ -480,6 +494,24 @@ void DataIO::networkDeviceStartStop(char value) {
 
 //	socket.close();
 //	DATAIO_DEBUG << "device start/stop: socket closed.";
+}
+
+void DataIO::sendAudio(u_char *buf) {
+	//RRK send audio bytes here
+	static TYPECPX cbuf[252];
+	int i, j;
+	short sample;
+
+	for(i = 8, j = 0; i < 512; i += 8, j++) {
+		//bytes are L,R,I,Q skip the I,Q
+		sample = buf[i] << 8 | buf[i+1]; //left
+		cbuf[j].re = (double)sample;
+		sample = buf[i+2] << 8 | buf[i+3]; //right
+		cbuf[j].im = (double)sample;
+	}
+
+	if(m_pSoundCardOut)
+		m_pSoundCardOut->PutOutQueue(63, cbuf);
 }
 
 void DataIO::writeData() {

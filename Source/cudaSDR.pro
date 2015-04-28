@@ -52,6 +52,7 @@ armv7l { HOST_ARCH = armv7-linux-gnueabihf }
         -lcudart \
         -lcufftw \
         -lcufft \
+        -lpulse-simple -lpulse -lasound \
         -L$$CUDA_DIR/targets/$$HOST_ARCH/lib
 
     CUDA_INC = $$join(INCLUDEPATH,' -I','-I',' ')

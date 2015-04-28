@@ -67,7 +67,10 @@ HEADERS += \
 	./src/cusdr_transmitTabWidget.h \
 	./src/cusdr_transmitOptionsWidget.h \
 	./src/cusdr_transmitPAWidget.h \
-        ./src/Util/cusdr_cpuUsage_unix.h
+        ./src/Util/cusdr_cpuUsage_unix.h \
+    src/DataEngine/soundout.h \
+    src/DataEngine/datatypes.h \
+    src/DataEngine/fractresampler.h
 	
 #win32:HEADERS += ./src/Util/cusdr_cpuUsage.h \
 
@@ -133,7 +136,9 @@ SOURCES += \
 	./src/cusdr_transmitOptionsWidget.cpp \
 	./src/cusdr_transmitPAWidget.cpp \
 	./src/main.cpp \
-        ./src/Util/cusdr_cpuUsage_unix.cpp
+        ./src/Util/cusdr_cpuUsage_unix.cpp \
+    src/DataEngine/soundout.cpp \
+    src/DataEngine/fractresampler.cpp
 
 #win32:SOURCES += ./src/Util/cusdr_cpuUsage.cpp \
 
