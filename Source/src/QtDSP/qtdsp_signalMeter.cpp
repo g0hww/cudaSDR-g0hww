@@ -36,8 +36,7 @@ SignalMeter::SignalMeter(QObject *parent, int size)
 	, set(Settings::instance())
 	, m_size(size)
 	, m_instValue(-80.0)
-	//, m_correction(59.0f)
-	, m_correction(-8.0f)
+    , m_correction(0.0f)
 {
 }
 
